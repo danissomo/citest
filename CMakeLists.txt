@@ -1,5 +1,25 @@
 cmake_minimum_required(VERSION 3.12.4)
-project(citest)
+project(mytest)
+
+##
+### Test definitions ###
+##
+
+configure_file(CMakeLists.txt.in
+        googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+
+add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
+        ${CMAKE_BINARY_DIR}/googletest-build)
+
+enable_testing()
+add_subdirectory(./test)
+
+
+add_compile_options(-Wall -Werror -Wpedantic)
 if ("${TARGET_CPU}" STREQUAL "amd64")
     set (CMAKE_SIZEOF_VOID_P 8)
 
@@ -17,5 +37,8 @@ elseif ("${TARGET_CPU}" STREQUAL "x86")
     endif ()
 else ()
     message (FATAL_ERROR "Unsupported CPU: ${TARGET_CPU}")
-endif() 
-add_executable(citest main.cpp)
+endif()
+
+file(GLOB sources "./src/*.cpp")
+add_executable(mytest ${sources})
+target_include_directories(mytest PUBLIC ./include)
